@@ -17,14 +17,37 @@ const sequelize = new Sequelize('db', 'user', 'pswd', {
 });
 
 const User = sequelize.define('user', {
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
   name: Sequelize.STRING
 });
 
 const Task = sequelize.define('task', {
-  title: Sequelize.STRING
+  id: {
+    type: Sequelize.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  title: Sequelize.STRING,
+});
+
+const Following = sequelize.define('following', {
 });
 
 User.Tasks = User.hasMany(Task, {as: 'tasks'});
+
+User.belongsToMany(User, {
+  through: {
+    model: Following,
+    unique: false,
+  },
+  as: 'followings',
+  foreignKey: 'fromId',
+  constraints: false
+});
 
 const taskType = new GraphQLObjectType({
   name: 'Task',
@@ -56,7 +79,13 @@ const userType = new GraphQLObjectType({
     tasks: {
       type: new GraphQLList(taskType),
       resolve: resolver(User.Tasks, {
-        separate: true // load seperately, disables auto including - default: false
+        separate: false // load seperately, disables auto including - default: false
+      }),
+    },
+    followings: {
+      type: new GraphQLList(userType),
+      resolve: resolver(User, {
+        seperate: false
       }),
     },
   }),

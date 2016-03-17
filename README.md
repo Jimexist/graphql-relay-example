@@ -17,6 +17,13 @@ query RootQuery {
       id
       title
     }
+    followings {
+      name,
+      tasks {
+        id
+        title
+      }
+    }
   }
 }
 ```
